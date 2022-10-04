@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\Category;
 use Illuminate\Http\Request;
+use \Cviebrock\EloquentSluggable\Services\SlugService;
 
 class DashboardPostController extends Controller
 {
@@ -28,7 +30,12 @@ class DashboardPostController extends Controller
     // method menampilkan halaman untuk menambah postingan
     public function create()
     {
-        //
+        // menampilkan halaman tambah data
+        return view('dashboard.posts.create', [
+            // mengambil data semua category dengan method all()
+            // dan dikirim ke view create
+            'categories' => Category::all()
+        ]);
     }
 
     /**
@@ -40,7 +47,9 @@ class DashboardPostController extends Controller
     // method untuk menjalankan fungsi tambah postingan
     public function store(Request $request)
     {
-        //
+        // menerima data yang dikirimkan dari view
+        // untuk ditambahkan ke database
+        return $request;
     }
 
     /**
@@ -95,4 +104,26 @@ class DashboardPostController extends Controller
     {
         //
     }
+
+    // method yang menangani ketika ada permintaan slug
+    public function checkSlug(Request $request)
+    {
+        // createSlug() adalah method yang ada di SlugService
+        // createSlug(Modelname::class, 'field_yang_diambil', 'data_yang_akan_diubah_menjadi_slug');
+        // dalam case ini, 'field yang diambil' adalah slug
+        // lalu 'data yang akan diubah' didapat dari $request->title, yaitu
+        // data yang dikirim dari route view create ==> /dashboard/posts/checkSlug?title
+        // karena data yang dikirimkan melalui url, maka dapat diambil dengan $request->nama_data
+        $slug = SlugService::createSlug(Post::class, 'slug', $request->title);
+
+        // mengembalikan hasil dari data yang dikirim dan diubah menjadi slug
+        // dalam bentuk json() agar dapat diolah pada method javascript yang
+        // telah dibuat di view create.blade.php
+        return response()->json(['slug' => $slug]); // json(['key' => 'value/data']);
+
+        // library SlugService sudah melakukan pengecekan otomatis keunikan dari slug
+        // ke database, karena slug harus unik
+    }
+
+
 }

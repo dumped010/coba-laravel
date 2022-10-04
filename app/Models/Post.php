@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Cviebrock\EloquentSluggable\Sluggable;
 
 class Post extends Model
 {
-    use HasFactory;
+    use HasFactory, Sluggable;
 
     // fillable berarti field yang disebutkan BOLEH DIISI, sisanya tidak
     // protected $fillable = ['title', 'excerpt', 'body'];
@@ -96,6 +98,15 @@ class Post extends Model
         return 'slug';
     }
 
+    // method untuk membuat slug secara otomatis menggunakan Eloquent Sluggable
+    public function sluggable(): array
+    {
+        return [
+            'slug' => [
+                'source' => 'title'
+            ]
+        ];
+    }
 
 
 

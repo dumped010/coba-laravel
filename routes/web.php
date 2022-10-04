@@ -95,6 +95,10 @@ Route::get('/dashboard', function(){
 // route untuk menggunakan resource controller
 Route::resource('/dashboard/posts', DashboardPostController::class)->middleware('auth');
 
+// route untuk menangani pembuatan slug otomatis
+// yang menggunakan library EloquentSluggable
+Route::get('/dashboard/checkSlug', [DashboardPostController::class, 'checkSlug'])->middleware('auth');
+
 
 
 
