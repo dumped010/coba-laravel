@@ -6,6 +6,7 @@ use App\Models\Post;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use \Cviebrock\EloquentSluggable\Services\SlugService;
+use Illuminate\Support\Str;
 
 class DashboardPostController extends Controller
 {
@@ -49,7 +50,25 @@ class DashboardPostController extends Controller
     {
         // menerima data yang dikirimkan dari view
         // untuk ditambahkan ke database
-        return $request;
+        $validatedData = $request->validate([
+            'title' => 'required|max:255',
+            'slug' => 'required|unique:posts',
+            'category_id' => 'required',
+            'body' => 'required'
+        ]);
+
+        // menambahkan id user ke dalam $validatedData
+        $validatedData['user_id'] = auth()->user()->id;
+
+        // menambahkan excerpt ke dalam $validatedData yang dibuat dari inputan body
+        $validatedData['excerpt'] = Str::limit(strip_tags($request->body), 100);
+
+        // menjalankan INSERT ke database
+        Post::create($validatedData);
+
+        // mengembalikan ke halaman dashboard setelah INSERT data ke database
+        // dan mengirimkan pesan success menggunakan method with()
+        return redirect('/dashboard/posts')->with('success', 'Postingan baru berhasil ditambahkan!!!');
     }
 
     /**
