@@ -6,7 +6,7 @@
     </div>
 
     @if (session()->has('success'))
-        <div class="alert alert-success" role="alert">
+        <div class="alert alert-success col-lg-9" role="alert">
             {{ session('success') }}
         </div>
     @endif
@@ -34,9 +34,15 @@
                         {{-- tombol lihat detail --}}
                         <a href="/dashboard/posts/{{ $post->slug }}" class="badge bg-info" data-bs-toggle="tooltip" data-bs-title="Details"><span data-feather="eye"></span></a>
                         {{-- tombol edit --}}
-                        <a href="" class="badge bg-warning" data-bs-toggle="tooltip" data-bs-title="Edit Post"><span data-feather="edit"></span></a>
+                        <a href="/dashboard/posts/{{ $post->slug }}/edit" class="badge bg-warning" data-bs-toggle="tooltip" data-bs-title="Edit Post"><span data-feather="edit"></span></a>
                         {{-- tombol hapus --}}
-                        <a href="" class="badge bg-danger" data-bs-toggle="tooltip" data-bs-title="Delete Post"><span data-feather="trash-2"></span></a>
+                        <form action="/dashboard/posts/{{ $post->slug }}" method="post" class="d-inline">
+                            {{-- method dari laravel untuk membajak method yang dari html yaitu post --}}
+                            {{-- mjd method yang disebutkan dalam method @method('') --}}
+                            @method('delete')
+                            @csrf
+                            <button class="badge bg-danger border-0" onclick="return confirm('Yakin Menghapus Data?')" data-bs-toggle="tooltip" data-bs-title="Delete Post"><span data-feather="trash-2"></span></button>
+                        </form>
                     </td>
                     </tr>
 

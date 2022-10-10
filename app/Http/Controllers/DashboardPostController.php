@@ -96,7 +96,14 @@ class DashboardPostController extends Controller
     // method untuk menampilkan halaman ubah data postingan
     public function edit(Post $post)
     {
-        //
+        // menampilkan halaman edit data
+        return view('dashboard.posts.edit', [
+            // mengirim data postingan ke view edit
+            'post' => $post,
+            // mengambil data semua category dengan method all()
+            // dan dikirim ke view create
+            'categories' => Category::all()
+        ]);
     }
 
     /**
@@ -109,7 +116,37 @@ class DashboardPostController extends Controller
     // method untuk menjalankan fungsi ubah data postingan
     public function update(Request $request, Post $post)
     {
-        //
+        // menerima data yang dikirimkan dari view edit
+        // untuk di UPDATE ke database
+        $rules = [
+            'title' => 'required|max:255',
+            'category_id' => 'required',
+            'body' => 'required'
+        ];
+
+        // pengkodisian slug
+        // jika slug yang dikirim tidak sama dengan slug yang ada di database
+        if($request->slug != $post->slug) {
+            $rules['slug'] = 'required|unique:posts';
+        }
+
+        // validasi data yang dikirimkan dalam variabel $rules
+        $validatedData = $request->validate($rules);
+
+        // menambahkan id user ke dalam $validatedData
+        $validatedData['user_id'] = auth()->user()->id;
+
+        // menambahkan excerpt ke dalam $validatedData yang dibuat dari inputan body
+        $validatedData['excerpt'] = Str::limit(strip_tags($request->body), 100);
+
+        // menjalankan UPDATE ke database
+        Post::where('id', $post->id)
+                ->update($validatedData);
+
+        // mengembalikan ke halaman dashboard setelah INSERT data ke database
+        // dan mengirimkan pesan success menggunakan method with()
+        return redirect('/dashboard/posts')->with('success', 'Postingan berhasil diubah!!!');
+
     }
 
     /**
@@ -121,7 +158,12 @@ class DashboardPostController extends Controller
     // method untuk menghapus data postingan
     public function destroy(Post $post)
     {
-        //
+        // menjalankan DELETE ke database
+        Post::destroy($post->id);
+
+        // mengembalikan ke halaman dashboard setelah DELETE data ke database
+        // dan mengirimkan pesan success menggunakan method with()
+        return redirect('/dashboard/posts')->with('success', 'Postingan berhasil dihapus!!!');
     }
 
     // method yang menangani ketika ada permintaan slug
