@@ -19,7 +19,17 @@
                     <button class="btn btn-danger" onclick="return confirm('Yakin Menghapus Data?')"><span data-feather="trash-2"></span> Delete</button>
                 </form>
 
-                <img src="https://source.unsplash.com/1200x400?{{ $data->category->name }}" alt="{{ $data->category->name }}" class="img-fluid mt-3">
+                {{-- pengkodisian jika ada gambarnya, ditampilkan dulu gambarnya --}}
+                {{-- jika tidak ada, tampilkan dari unsplash --}}
+                @if ($data->image)
+                    {{-- pembuatan div ini sedikit memaksa agar ukuran gambar yang ditampilkand ari database --}}
+                    {{-- menyerupai ukuran yang dari unsplash --}}
+                    <div style="max-height: 350px; overflow:hidden;">
+                        <img src="{{ asset('storage/' . $data->image) }}" alt="{{ $data->category->name }}" class="img-fluid mt-3">
+                    </div>
+                @else
+                    <img src="https://source.unsplash.com/1200x400?{{ $data->category->name }}" alt="{{ $data->category->name }}" class="img-fluid mt-3">
+                @endif
 
                 <article class="my-3 fs-5">
                     {{-- {!!  !!} escaping tag html di dalam paragraf, tag html yang ada dalam paragraf TERBACA --}}

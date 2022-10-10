@@ -13,12 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
+        // membuat table beserta kolom-kolom nya
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_id'); // foreign key tabel kategory
             $table->foreignId('user_id'); // foreign key tabel user
             $table->string('title'); // judul postingan
-            $table->string('slug')->unique();
+            $table->string('slug')->unique(); // kolom untuk menyimpan slug
+            $table->string('image')->nullable(); // kolom untuk menyimpan nama file gambar
             $table->text('excerpt'); // menampilkan sebagian isi postingan
             $table->text('body'); // isi postingan
             $table->timestamp('published_at')->nullable(); // tipe data untuk menyimpan tanggal perubahan apps
