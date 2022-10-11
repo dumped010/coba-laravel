@@ -6,6 +6,7 @@ use App\Models\Post;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use \Cviebrock\EloquentSluggable\Services\SlugService;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 
@@ -71,7 +72,7 @@ class DashboardPostController extends Controller
 
         // validasi jika user tidak upload image
         // tidak masalah karena telah ditangani dengan API dari Unsplash
-        if ($validatedData['image']) {
+        if ($request->file('image')) {
             // jika image telah berhasil melalui validasi, maka akan disimpan ke folder post-images
             $validatedData['image'] = $request->file('image')->store('post-images');
         }
@@ -140,8 +141,10 @@ class DashboardPostController extends Controller
         $rules = [
             'title' => 'required|max:255',
             'category_id' => 'required',
+            'image' => 'image|file|max:1024', // maks ukuran file 1 MB / 1024 KB
             'body' => 'required'
         ];
+
 
         // pengkodisian slug
         // jika slug yang dikirim tidak sama dengan slug yang ada di database
@@ -152,6 +155,16 @@ class DashboardPostController extends Controller
         // validasi data yang dikirimkan dalam variabel $rules
         $validatedData = $request->validate($rules);
 
+        // validasi jika user tidak mengubah image
+        // tidak masalah karena telah ditangani dengan API dari Unsplash
+        if ($request->file('image')) {
+            // kondisi jika postingan memiliki gambar lama, maka dihapus dulu baru upload yang baru
+            if ($request->oldImage) {
+                Storage::delete($request->oldImage);
+            }
+            // jika image telah berhasil melalui validasi, maka akan disimpan ke folder post-images
+            $validatedData['image'] = $request->file('image')->store('post-images');
+        }
         // menambahkan id user ke dalam $validatedData
         $validatedData['user_id'] = auth()->user()->id;
 
@@ -177,6 +190,11 @@ class DashboardPostController extends Controller
     // method untuk menghapus data postingan
     public function destroy(Post $post)
     {
+        // kondisi jika postingan memiliki gambar, maka dihapus dulu gambarnya baru hapus postingan nya
+        if ($post->image) {
+            Storage::delete($post->image);
+        }
+
         // menjalankan DELETE ke database
         Post::destroy($post->id);
 

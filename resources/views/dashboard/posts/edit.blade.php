@@ -8,7 +8,7 @@
 
     <div class="col-lg-9">
         {{-- form tambah data postingan --}}
-        <form method="post" action="/dashboard/posts/{{ $post->slug }}" class="mb-5">
+        <form method="post" action="/dashboard/posts/{{ $post->slug }}" class="mb-5" enctype="multipart/form-data">
             {{-- method laravel untuk membajak method dari html yaitu post --}}
             {{-- menjadi method="put" untuk menyimpan data ke database --}}
             @method('put')
@@ -22,6 +22,7 @@
                     </div>
                 @enderror
             </div>
+
             <div class="mb-3">
                 <label for="slug" class="form-label">Slug (Tanda Pengenal Postingan)</label>
                 <input type="text" class="form-control @error('slug') is-invalid @enderror" id="slug" name="slug" value="{{ old('slug', $post->slug) }}" required>
@@ -31,6 +32,7 @@
                     </div>
                 @enderror
             </div>
+
             <div class="mb-3">
                 <label for="category" class="form-label">Kategori</label>
                 <select class="form-select" name="category_id">
@@ -45,6 +47,29 @@
                     @endforeach
                 </select>
             </div>
+
+            <div class="mb-3">
+                <label for="image" class="form-label">Gambar Postingan</label>
+                {{-- input untuk menyimpan path gambar lama, yang digunakan untuk menghapus gambar lama tsb --}}
+                {{-- jika user mengupload gambar baru --}}
+                <input type="hidden" name="oldImage" value="{{ $post->image }}">
+                {{-- kondisi ketika postingan sudah memiliki gambar, maka ditampilkan dulu di preview image --}}
+                @if ($post->image)
+                    <img src="{{ asset('storage/' . $post->image) }}" class="img-preview img-fluid mb-3 col-sm-6 d-block">
+                @else
+                    {{-- Preview Image dengan Javascript --}}
+                    {{-- class img-preview hanya kelas yang dibuat sendiri untuk pemanggilan --}}
+                    <img class="img-preview img-fluid mt-3 col-sm-6">
+                @endif
+                <input class="form-control @error('image') is-invalid @enderror" type="file" id="image" name="image" onchange="previewImage()">
+                @error('image')
+                    <div class="invalid-feedback">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+            </div>
+
             <div class="mb-3">
                 <label for="body" class="form-label">Isi Postingan</label>
                 {{-- atribut id pada field input HARUS SAMA dengan atribut input pada field trix-editor --}}
@@ -99,5 +124,23 @@
         document.addEventListener('trix-file-accept', function(e) {
             e.preventDefault();
         });
+
+        // function untuk preview image
+        function previewImage() {
+            // id menggunakan simbol pagar/hashtag (#), sedangkan class menggunakan simbol titik/dot (.)
+            const img = document.querySelector('#image'); // variable untuk menangkap inputan gambar
+            const imgPreview = document.querySelector('.img-preview'); // var untuk menangkap tag img yang kosong
+
+            // mengubah display image yang semula inline menjadi block
+            imgPreview.style.display = 'block';
+
+            // perintah untuk mengambil data gambar yang di input user
+            const oFReader = new FileReader();
+            oFReader.readAsDataURL(img.files[0]);
+
+            oFReader.onload = function (oFREevent) {
+                imgPreview.src = oFREevent.target.result;
+            }
+        }
     </script>
 @endsection

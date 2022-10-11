@@ -44,12 +44,15 @@
             </div>
             <div class="mb-3">
                 <label for="image" class="form-label">Gambar Postingan</label>
-                <input class="form-control @error('image') is-invalid @enderror" type="file" id="image" name="image">
                 @error('image')
                     <div class="invalid-feedback">
                         {{ $message }}
                     </div>
                 @enderror
+                {{-- Preview Image dengan Javascript --}}
+                {{-- class img-preview hanya kelas yang dibuat sendiri untuk pemanggilan --}}
+                <img class="img-preview img-fluid mb-3 col-sm-6">
+                <input class="form-control @error('image') is-invalid @enderror" type="file" id="image" name="image" onchange="previewImage()">
             </div>
             <div class="mb-3">
                 <label for="body" class="form-label">Isi Postingan</label>
@@ -105,5 +108,25 @@
         document.addEventListener('trix-file-accept', function(e) {
             e.preventDefault();
         });
+
+        // function untuk preview image
+        function previewImage() {
+            // id menggunakan simbol pagar/hashtag (#), sedangkan class menggunakan simbol titik/dot (.)
+            const img = document.querySelector('#image'); // variable untuk menangkap inputan gambar
+            const imgPreview = document.querySelector('.img-preview'); // var untuk menangkap tag img yang kosong
+
+            // mengubah display image yang semula inline menjadi block
+            imgPreview.style.display = 'block';
+
+            // perintah untuk mengambil data gambar yang di input user
+            const oFReader = new FileReader();
+            oFReader.readAsDataURL(img.files[0]);
+
+            oFReader.onload = function (oFREevent) {
+                imgPreview.src = oFREevent.target.result;
+            }
+        }
+
+
     </script>
 @endsection
