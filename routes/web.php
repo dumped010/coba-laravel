@@ -1,6 +1,6 @@
 <?php
 
-
+use App\Http\Controllers\AdminCategoryController;
 use App\Http\Controllers\PostController;
 use App\Models\Category;
 use Illuminate\Support\Facades\Route;
@@ -92,6 +92,7 @@ Route::get('/dashboard', function(){
     return view('dashboard.index');
 })->middleware('auth');
 
+// route untuk masuk ke halaman postingan dengan resource controller
 // route untuk menggunakan resource controller
 Route::resource('/dashboard/posts', DashboardPostController::class)->middleware('auth');
 
@@ -99,7 +100,10 @@ Route::resource('/dashboard/posts', DashboardPostController::class)->middleware(
 // yang menggunakan library EloquentSluggable
 Route::get('/dashboard/checkSlug', [DashboardPostController::class, 'checkSlug'])->middleware('auth');
 
-
+// route untuk masuk ke Dashboard Category khusus ADMIN
+// SELAIN admin tidak boleh masuk
+// method except() memungkinkan untuk memblokir akses ke method dalam resource controller
+Route::resource('/dashboard/categories', AdminCategoryController::class)->except('show')->middleware('admin');
 
 
 
